@@ -1,2 +1,1 @@
-# BoiChatBot
 anonymous chat exposed
