@@ -6,8 +6,8 @@ import uuid
 
 engine = create_engine("sqlite:///sqlite3.db", echo=True, future=True)
 # engine.connect()
-Session = sessionmaker(bind=engine)
-session = Session()
+# Session = sessionmaker(bind=engine)
+# session = Session()
 Base = declarative_base()
 
 class User(Base):
@@ -27,9 +27,12 @@ class User(Base):
 
 # Base.metadata.clear()
 Base.metadata.create_all(engine)
-# squidward = User(name="squidward", username="Squidward Tentacles")
+# squidward = User(name="arshia", username="arshiamohammadii", chat_id="467845070")
 # krabs = User(name="ehkrabs", username="Eugene H. Krabs")
 # session.add(squidward)
 # session.add(krabs)
 # session.commit()
-# print(session.query(User).filter(User.uuid=='f803c256-b5c').all())
+# query = session.query(User).filter(User.uuid=='948f0e77-20e').one()
+# query2 = session.get(User, 1)
+# if query is not None:
+#     print(query.uuid)
