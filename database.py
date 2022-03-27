@@ -1,29 +1,42 @@
+from email.policy import default
 from sqlalchemy import (Column, Integer, 
-                        create_engine, MetaData, String)
-from sqlalchemy.orm import relationship, backref, sessionmaker
+                        create_engine, Boolean, String, ForeignKey)
+from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 import uuid
 
 engine = create_engine("sqlite:///sqlite3.db", echo=True, future=True)
-# engine.connect()
+engine.connect()
 # Session = sessionmaker(bind=engine)
 # session = Session()
 Base = declarative_base()
 
 class User(Base):
 
-    __tablename__ = "user_account"
+    __tablename__ = "user"
 
     id = Column(Integer, primary_key=True)
     username = Column(String)
     name = Column(String)
     uuid = Column(String,  default=lambda: str(uuid.uuid4())[:12], unique=True)
     chat_id = Column(Integer)
-        
+    messages = relationship("Message", backref="user")        
 
     def __repr__(self):
         return f"User(id={self.id!r}, name={self.name!r},\
     username={self.username!r})"
+
+class Message(Base):
+
+    __tablename__ = "message"
+
+    id = Column(Integer, primary_key=True)
+    content_id = Column(Integer)
+    sender_username = Column(String)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    read = Column(Boolean, default=False)
+
+
 
 # Base.metadata.clear()
 Base.metadata.create_all(engine)
