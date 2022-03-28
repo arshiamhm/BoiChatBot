@@ -1,14 +1,16 @@
 from email.policy import default
+from sqlite3 import Date
 from sqlalchemy import (Column, Integer, 
-                        create_engine, Boolean, String, ForeignKey)
+                        create_engine, Boolean, String, ForeignKey, DateTime)
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.sql import func
 import uuid
 
 engine = create_engine("sqlite:///sqlite3.db", echo=True, future=True)
 engine.connect()
-# Session = sessionmaker(bind=engine)
-# session = Session()
+Session = sessionmaker(bind=engine)
+session = Session()
 Base = declarative_base()
 
 class User(Base):
@@ -23,8 +25,7 @@ class User(Base):
     messages = relationship("Message", backref="user")        
 
     def __repr__(self):
-        return f"User(id={self.id!r}, name={self.name!r},\
-    username={self.username!r})"
+        return f"User(id={self.id!r}, name={self.name!r},\ username={self.username!r})"
 
 class Message(Base):
 
@@ -35,7 +36,8 @@ class Message(Base):
     sender_username = Column(String)
     user_id = Column(Integer, ForeignKey('user.id'))
     read = Column(Boolean, default=False)
-
+    created_at = Column(DateTime, default=func.now())
+    sender_chat_id = Column(Integer)
 
 
 # Base.metadata.clear()
