@@ -7,22 +7,22 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 import uuid
 
-engine = create_engine("sqlite:///sqlite3.db", echo=True, future=True)
-engine.connect()
-Session = sessionmaker(bind=engine)
-session = Session()
+engine = create_engine('postgresql://@localhost/telebot', echo=True, future=True)
+# engine.connect()
+# Session = sessionmaker(bind=engine)
+# session = Session()
 Base = declarative_base()
 
-class User(Base):
+class Account(Base):
 
-    __tablename__ = "user"
+    __tablename__ = "account"
 
     id = Column(Integer, primary_key=True)
     username = Column(String)
     name = Column(String)
     uuid = Column(String,  default=lambda: str(uuid.uuid4())[:12], unique=True)
     chat_id = Column(Integer)
-    messages = relationship("Message", backref="user")        
+    messages = relationship("Message", backref="account")        
 
     def __repr__(self):
         return f"User(id={self.id!r}, name={self.name!r},\ username={self.username!r})"
@@ -34,7 +34,7 @@ class Message(Base):
     id = Column(Integer, primary_key=True)
     content_id = Column(Integer)
     sender_username = Column(String)
-    user_id = Column(Integer, ForeignKey('user.id'))
+    user_id = Column(Integer, ForeignKey('account.id'))
     read = Column(Boolean, default=False)
     created_at = Column(DateTime, default=func.now())
     sender_chat_id = Column(Integer)
