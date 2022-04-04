@@ -7,19 +7,20 @@ from queries import *
 from redis import Redis
 import flask
 import time
+import os
 
 WEBHOOK_HOST = 'rocky-springs-24453.herokuapp.com'
 WEBHOOK_PORT = 8443  # 443, 80, 88 or 8443 (port need to be 'open')
 WEBHOOK_SSL_CERT = './webhook_cert.pem'  # Path to the ssl certificate
 WEBHOOK_SSL_PRIV = './webhook_pkey.pem'  # Path to the ssl private key
 
-API_TOKEN = '5128541246:AAFGgLD-2wqSdICYg0Gn11E011aWldJapWg'
-bot = TeleBot(API_TOKEN)
+bot = TeleBot(os.getenv( "BOT_API_TOKEN"))
 app = flask.Flask(__name__)
 red = Redis("localhost", 6379, db=0, decode_responses=True)
 
 WEBHOOK_URL_BASE = "https://%s:%s" % (WEBHOOK_HOST, WEBHOOK_PORT)
-WEBHOOK_URL_PATH = "/%s/" % (API_TOKEN)
+WEBHOOK_URL_PATH = "/%s/" % (os.getenv( "BOT_API_TOKEN"))
+
 
 
 

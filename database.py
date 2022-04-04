@@ -6,8 +6,9 @@ from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 import uuid
+import os
 
-engine = create_engine('postgresql://@localhost/telebot', echo=True, future=True)
+engine = create_engine(os.getenv('DATABASE_URL'), echo=True, future=True)
 # engine.connect()
 # Session = sessionmaker(bind=engine)
 # session = Session()
