@@ -18,7 +18,7 @@ bot = TeleBot(os.environ["BOT_API_TOKEN"])
 app = flask.Flask(__name__)
 red = Redis(os.getenv("REDIS_HOST"), port=os.getenv("REDIS_PORT"), db=0, password=os.getenv("REDIS_PASSWORD"))
 WEBHOOK_URL_BASE = "https://%s:%s" % (WEBHOOK_HOST, WEBHOOK_PORT)
-WEBHOOK_URL_PATH = "/%s/" % (os.getenv( "BOT_API_TOKEN"))
+WEBHOOK_URL_PATH = "/%s/" % (os.getenv("BOT_API_TOKEN"))
 
 
 
