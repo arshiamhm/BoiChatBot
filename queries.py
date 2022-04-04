@@ -39,12 +39,12 @@ def save_message(uuid, message):
         sess.commit()
     # session.close()
 
-def answer_message(message_id, message):
+def answer_message(sender_chat_id, message):
     with Session(engine) as sess:
         # print(message.id)
         # print(message_id)
-        mess = sess.query(Message).filter(Message.content_id == message_id).first()
-        message_sent = Message(content_id=message.id, sender_username=message.chat.username, user_id=mess.user_id, sender_chat_id=message.chat.id)
+        user = sess.query(Account).filter(Account.chat_id == sender_chat_id).first()
+        message_sent = Message(content_id=message.id, sender_username=message.chat.username, user_id=user.id, sender_chat_id=message.chat.id)
         sess.add(message_sent)
         sess.commit()
 

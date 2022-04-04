@@ -5,7 +5,7 @@ from database import Message, engine, Account
 from sqlalchemy.orm import Session
 from queries import *
 from redis import Redis
-import json
+
 
 
 API_TOKEN = '5128541246:AAFGgLD-2wqSdICYg0Gn11E011aWldJapWg'
@@ -34,13 +34,13 @@ def gen_markup():
 def callback_query(call):
     if call.data == "answer":
             print(call.message)
-            red.hset(f"{call.message.chat.id}", mapping={'pending_message':1, 'answering': 1, 'sending_to_messageid': call.message.id})
-            # print(call.message.text)
-            # red.hset(call.message.chat.id, "sending_to_messageid", call.message.id)
+            red.hset(f"{call.message.chat.id}", mapping={'pending_message':1, 'answering': 1})
+            print(call.message.text)
             bot.reply_to(call.message," ☝️ در حال پاسخ دادن به فرستنده این پیام هستی ... ؛ منتظریم بفرستی :)")
 
     elif call.data == "cb_no":
         bot.answer_callback_query(call.id, "Answer is No")
+
 
 def back_to_default(message):
     markup = ReplyKeyboardRemove()
@@ -84,7 +84,7 @@ def new_mesg(message):
     for mess in all_messages.order_by(Message.created_at):
         bot.send_message(message.chat.id, f"@{mess.sender_username} says:")
         bot.copy_message(message.chat.id, mess.sender_chat_id, mess.content_id, reply_markup=gen_markup())
-
+        red.hset(f"{message.chat.id}", mapping={'sender_chat_id':mess.sender_chat_id})
     if all_messages.all():
         with Session(engine) as sess:
             # deleted_rows = all_messages.delete(synchronize_session=False)
@@ -99,18 +99,17 @@ def new_mesg(message):
 @bot.message_handler(content_types=['animation', 'audio', 'contact', 'dice', 'document', 'location', 'photo', 'poll', 'sticker', 'text', 'venue', 'video', 'video_note', 'voice'])
 def send_anonymous_message(message):
     data = red.hgetall(f"{message.chat.id}")
-    print('annon handler')
-    print(data)
+    user = query_uuid(Account, data["sending_to_uuid"])
+    
     if data['pending_message'] == '1':
-        print('message pending')
         if data['answering'] == '1':
-            answer_message(data["sending_to_messageid"], message)
+            answer_message(data["sender_chat_id"], message)
+            bot.send_message(data["sender_chat_id"], "شما یک پیام ناشناس دارید!!")
         else:
-            print('sendinig')
             save_message(data["sending_to_uuid"], message)
+            bot.send_message(user.chat_id, "شما یک پیام ناشناس دارید!!")
 
         back_to_default(message)
-        bot.send_message(message.chat.id, "شما یک پیام ناشناس دارید!!")
    
     if message.text == "انصراف":
         back_to_default(message)
