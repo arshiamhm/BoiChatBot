@@ -1,21 +1,27 @@
-from telebot.types import (ReplyKeyboardMarkup, KeyboardButton,
+from telebot.types import (ReplyKeyboardMarkup, KeyboardButton, Update,
                         ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton)
 from telebot import TeleBot
 from database import Message, engine, Account
 from sqlalchemy.orm import Session
 from queries import *
 from redis import Redis
+import flask
+import time
 
-
+WEBHOOK_HOST = 'rocky-springs-24453.herokuapp.com'
+WEBHOOK_PORT = 8443  # 443, 80, 88 or 8443 (port need to be 'open')
+WEBHOOK_SSL_CERT = './webhook_cert.pem'  # Path to the ssl certificate
+WEBHOOK_SSL_PRIV = './webhook_pkey.pem'  # Path to the ssl private key
 
 API_TOKEN = '5128541246:AAFGgLD-2wqSdICYg0Gn11E011aWldJapWg'
 bot = TeleBot(API_TOKEN)
+app = flask.Flask(__name__)
 red = Redis("localhost", 6379, db=0, decode_responses=True)
 
-user = None
-# with Session(engine) as sess:
-#     sess.query(Message).filter(Message.user_id==1).delete()
-#     sess.commit()
+WEBHOOK_URL_BASE = "https://%s:%s" % (WEBHOOK_HOST, WEBHOOK_PORT)
+WEBHOOK_URL_PATH = "/%s/" % (API_TOKEN)
+
+
 
 def cancel_markup(text="انصراف"):
     markup = ReplyKeyboardMarkup()
@@ -28,6 +34,22 @@ def gen_markup():
     markup.add(InlineKeyboardButton("پاسخ", callback_data="answer"),
                                InlineKeyboardButton("بلاک", callback_data="block"))
     return markup
+
+@app.route('/', methods=['GET', 'HEAD'])
+def index():
+    return ''
+
+
+# Process webhook calls
+@app.route(WEBHOOK_URL_PATH, methods=['POST'])
+def webhook():
+    if flask.request.headers.get('content-type') == 'application/json':
+        json_string = flask.request.get_data().decode('utf-8')
+        update = Update.de_json(json_string)
+        bot.process_new_updates([update])
+        return ''
+    else:
+        flask.abort(403)
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -117,9 +139,20 @@ def send_anonymous_message(message):
 
 
 
-bot.infinity_polling()
+bot.remove_webhook()
 
+time.sleep(0.1)
 
+# Set webhook
+bot.set_webhook(url=WEBHOOK_URL_BASE + WEBHOOK_URL_PATH,
+                certificate=open(WEBHOOK_SSL_CERT, 'r'))
+
+if __name__ == "__main__":
+# Start flask server
+    app.run(host=WEBHOOK_HOST,
+            port=WEBHOOK_PORT,
+            ssl_context=(WEBHOOK_SSL_CERT, WEBHOOK_SSL_PRIV),
+            debug=True)
 
 
 
