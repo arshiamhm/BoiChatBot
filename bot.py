@@ -5,7 +5,7 @@ from database import Message, engine, Account
 from sqlalchemy.orm import Session
 from queries import *
 from redis import Redis
-import flask
+from flask import Flask, request
 import time
 import os
 
@@ -15,7 +15,7 @@ WEBHOOK_SSL_CERT = './webhook_cert.pem'  # Path to the ssl certificate
 WEBHOOK_SSL_PRIV = './webhook_pkey.pem'  # Path to the ssl private key
 
 bot = TeleBot(os.environ["BOT_API_TOKEN"])
-app = flask.Flask(__name__)
+app = Flask(__name__)
 red = Redis(os.getenv("REDIS_HOST"), port=os.getenv("REDIS_PORT"), db=0, password=os.getenv("REDIS_PASSWORD"))
 WEBHOOK_URL_BASE = "https://%s:%s" % (WEBHOOK_HOST, WEBHOOK_PORT)
 WEBHOOK_URL_PATH = "/%s/" % (os.getenv("BOT_API_TOKEN"))
@@ -34,23 +34,6 @@ def gen_markup():
     markup.add(InlineKeyboardButton("پاسخ", callback_data="answer"),
                                InlineKeyboardButton("بلاک", callback_data="block"))
     return markup
-
-@app.route('/', methods=['GET', 'HEAD'])
-def index():
-    return ''
-
-
-# Process webhook calls
-@app.route(WEBHOOK_URL_PATH, methods=['POST'])
-def webhook():
-    if flask.request.headers.get('content-type') == 'application/json':
-        json_string = flask.request.get_data().decode('utf-8')
-        update = Update.de_json(json_string)
-        bot.process_new_updates([update])
-        return ''
-    else:
-        flask.abort(403)
-
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
@@ -138,21 +121,24 @@ def send_anonymous_message(message):
 
 
 
+@app.route('/' + os.environ['BOT_API_TOKEN'], methods=['POST'])
+def getMessage():
+    json_string = request.get_data().decode('utf-8')
+    update = Update.de_json(json_string)
+    bot.process_new_updates([update])
+    return "!", 200
 
-bot.remove_webhook()
+@app.route("/")
+def webhook():
+    bot.remove_webhook()
+    bot.set_webhook(url='https://boichatbot.herokuapp.com/' + os.environ['BOT_API_TOKEN'])
+    return "!", 200
 
-time.sleep(0.1)
 
-# Set webhook
-bot.set_webhook(url=WEBHOOK_URL_BASE + WEBHOOK_URL_PATH,
-                certificate=open(WEBHOOK_SSL_CERT, 'r'))
 
 if __name__ == "__main__":
 # Start flask server
-    app.run(host=WEBHOOK_HOST,
-            port=WEBHOOK_PORT,
-            ssl_context=(WEBHOOK_SSL_CERT, WEBHOOK_SSL_PRIV),
-            debug=True)
+    app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
 
 
 
