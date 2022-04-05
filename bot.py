@@ -9,17 +9,11 @@ from flask import Flask, request
 import os
 
 WEBHOOK_HOST = 'rocky-springs-24453.herokuapp.com'
-WEBHOOK_PORT = 8443  # 443, 80, 88 or 8443 (port need to be 'open')
-WEBHOOK_SSL_CERT = './webhook_cert.pem'  # Path to the ssl certificate
-WEBHOOK_SSL_PRIV = './webhook_pkey.pem'  # Path to the ssl private key
+
 
 bot = TeleBot(os.environ["BOT_API_TOKEN"])
 app = Flask(__name__)
 red = Redis(host=os.getenv("REDIS_HOST"), port=os.getenv("REDIS_PORT"),password=os.getenv("REDIS_PASSWORD"))
-WEBHOOK_URL_BASE = "https://%s:%s" % (WEBHOOK_HOST, WEBHOOK_PORT)
-WEBHOOK_URL_PATH = "/%s/" % (os.getenv("BOT_API_TOKEN"))
-
-
 
 
 def cancel_markup(text="انصراف"):
@@ -99,9 +93,9 @@ def new_mesg(message):
         bot.send_message(message.chat.id, "There are no new messages for you")
 
 
-
 @bot.message_handler(content_types=['animation', 'audio', 'contact', 'dice', 'document', 'location', 'photo', 'poll', 'sticker', 'text', 'venue', 'video', 'video_note', 'voice'])
 def send_anonymous_message(message):
+    print("not working")
     data = red.hgetall(f"{message.chat.id}")
     user = query_uuid(Account, data["sending_to_uuid"])
     
