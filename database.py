@@ -8,7 +8,7 @@ from sqlalchemy.sql import func
 import uuid
 import os
 
-engine = create_engine('postgresql://euowcrcwvglzrl:74637ec61e6742e4d6229c5f6338226b14518c3f34e80da15811576b18d8f752@ec2-18-214-134-226.compute-1.amazonaws.com:5432/db3p5ooc109u67', echo=True, future=True)
+engine = create_engine(os.environ['DATABASE_URL'], echo=True, future=True)
 # engine.connect()
 # Session = sessionmaker(bind=engine)
 # session = Session()
