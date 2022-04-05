@@ -36,6 +36,7 @@ def save_message(uuid, message):
         to_user = sess.query(Account).filter(Account.uuid == uuid).first()
         message_sent = Message(content_id=message.id, sender_username=message.chat.username, user_id=to_user.id, sender_chat_id=message.chat.id)
         sess.add(message_sent)
+        print('message is being saved')
         sess.commit()
     # session.close()
 

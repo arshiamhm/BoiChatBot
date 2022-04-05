@@ -6,7 +6,6 @@ from sqlalchemy.orm import Session
 from queries import *
 from redis import Redis
 from flask import Flask, request
-import time
 import os
 
 WEBHOOK_HOST = 'rocky-springs-24453.herokuapp.com'
@@ -111,6 +110,7 @@ def send_anonymous_message(message):
             answer_message(data["sender_chat_id"], message)
             bot.send_message(data["sender_chat_id"], "شما یک پیام ناشناس دارید!!")
         else:
+            print("this not workinggggggg")
             save_message(data["sending_to_uuid"], message)
             bot.send_message(user.chat_id, "شما یک پیام ناشناس دارید!!")
 
