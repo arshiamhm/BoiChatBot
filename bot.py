@@ -13,7 +13,7 @@ WEBHOOK_HOST = 'rocky-springs-24453.herokuapp.com'
 
 bot = TeleBot(os.environ["BOT_API_TOKEN"])
 app = Flask(__name__)
-red = Redis(host=os.getenv("REDIS_HOST"), port=os.getenv("REDIS_PORT"),password=os.getenv("REDIS_PASSWORD"))
+red = Redis(host=os.getenv("REDIS_HOST"), port=os.getenv("REDIS_PORT"),password=os.getenv("REDIS_PASSWORD"), decode_responses=True)
 
 
 def cancel_markup(text="انصراف"):
