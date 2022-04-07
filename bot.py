@@ -98,8 +98,10 @@ def new_mesg(message):
 def send_anonymous_message(message):
     print("not working")
     data = red.hgetall(f"{message.chat.id}")
+    print(data)
     user = query_uuid(Account, data["sending_to_uuid"])
-    
+    print(user)
+
     if data['pending_message'] == '1':
         print('conditions not working')
         if data['answering'] == '1':
