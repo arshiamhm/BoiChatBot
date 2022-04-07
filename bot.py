@@ -41,6 +41,7 @@ def callback_query(call):
 
 
 def back_to_default(message):
+    print(message.chat.id)
     markup = ReplyKeyboardRemove()
     bot.send_message(message.from_user.id, "حاه! \n چه کاری برات انجام\
                         بدم؟", reply_markup=markup)
@@ -100,6 +101,7 @@ def send_anonymous_message(message):
     user = query_uuid(Account, data["sending_to_uuid"])
     
     if data['pending_message'] == '1':
+        print('conditions not working')
         if data['answering'] == '1':
             answer_message(data["sender_chat_id"], message)
             bot.send_message(data["sender_chat_id"], "شما یک پیام ناشناس دارید!!")
